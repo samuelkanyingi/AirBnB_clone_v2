@@ -1,3 +1,4 @@
+# puppet manifest
 file { '/data':
   ensure => directory,
   owner  => 'ubuntu',
