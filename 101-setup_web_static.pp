@@ -1,25 +1,32 @@
-# Puppet manifest that sets up your web servers
-if ! package { 'nginx':
-  ensure => installed,
-} {
-  exec { 'apt-update':
-    command => 'apt-get update',
-    path    => '/usr/bin',
-    require => Package['nginx'],
-  }
+file { '/data':
+  ensure => directory,
+  owner  => 'ubuntu',
+  group  => 'ubuntu',
+}
+
+file { '/data/web_static':
+  ensure => directory,
+  owner  => 'ubuntu',
+  group  => 'ubuntu',
+}
+
+file { '/data/web_static/releases':
+  ensure => directory,
+  owner  => 'ubuntu',
+  group  => 'ubuntu',
 }
 
 file { '/data/web_static/releases/test':
   ensure => directory,
-}
-
-file { '/data/web_static/shared':
-  ensure => directory,
+  owner  => 'ubuntu',
+  group  => 'ubuntu',
 }
 
 file { '/data/web_static/releases/test/index.html':
   ensure  => file,
   content => 'Hello',
+  owner   => 'ubuntu',
+  group   => 'ubuntu',
 }
 
 file { '/data/web_static/current':
@@ -28,10 +35,11 @@ file { '/data/web_static/current':
 }
 
 file { '/data/':
-  ensure => directory,
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
-  recurse => true,
+  ensure   => directory,
+  owner    => 'ubuntu',
+  group    => 'ubuntu',
+  recurse  => true,
+  require  => File['/data/web_static/releases/test/index.html'],
 }
 
 file_line { 'nginx_config':
