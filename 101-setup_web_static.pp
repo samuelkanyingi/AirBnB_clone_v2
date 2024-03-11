@@ -1,33 +1,25 @@
-# puppet manifest
-file { '/data':
-  ensure => directory,
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
-}
-
-file { '/data/web_static':
-  ensure => directory,
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
-}
-
-file { '/data/web_static/releases':
-  ensure => directory,
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
+# Puppet manifest that sets up your web servers for the deployment of web_static
+if ! package { 'nginx':
+  ensure => installed,
+} {
+  exec { 'apt-update':
+    command => 'apt-get update',
+    path    => '/usr/bin',
+    require => Package['nginx'],
+  }
 }
 
 file { '/data/web_static/releases/test':
   ensure => directory,
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
+}
+
+file { '/data/web_static/shared':
+  ensure => directory,
 }
 
 file { '/data/web_static/releases/test/index.html':
   ensure  => file,
   content => 'Hello',
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
 }
 
 file { '/data/web_static/current':
@@ -35,12 +27,8 @@ file { '/data/web_static/current':
   target => '/data/web_static/releases/test/',
 }
 
-file { '/data/':
-  ensure   => directory,
-  owner    => 'ubuntu',
-  group    => 'ubuntu',
-  recurse  => true,
-  require  => File['/data/web_static/releases/test/index.html'],
+exec { 'chown -R ubuntu:ubuntu /data/':
+  path => '/usr/bin/:/usr/local/bin/:/bin/'
 }
 
 file_line { 'nginx_config':
